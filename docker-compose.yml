@@ -1,0 +1,119 @@
+version: "3.8"
+
+services:
+
+  controller1:
+    image: bitnami/kafka:3.7.0
+    container_name: controller1
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=CONTROLLER://:9093
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@controller1:9093,2@controller2:9093,3@controller3:9093
+    volumes:
+      - ./data/controller1:/bitnami/kafka/data
+    ports:
+      - "9093:9093"
+
+  controller2:
+    image: bitnami/kafka:3.7.0
+    container_name: controller2
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_CFG_NODE_ID=2
+      - KAFKA_CFG_PROCESS_ROLES=controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=CONTROLLER://:9093
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@controller1:9093,2@controller2:9093,3@controller3:9093
+    volumes:
+      - ./data/controller2:/bitnami/kafka/data
+    ports:
+      - "9094:9093"
+
+  controller3:
+    image: bitnami/kafka:3.7.0
+    container_name: controller3
+    networks:
+      - kafka-net
+    environment:
+      - KAFKA_CFG_NODE_ID=3
+      - KAFKA_CFG_PROCESS_ROLES=controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=CONTROLLER://:9093
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@controller1:9093,2@controller2:9093,3@controller3:9093
+    volumes:
+      - ./data/controller3:/bitnami/kafka/data
+    ports:
+      - "9095:9093"
+
+  broker1:
+    image: bitnami/kafka:3.7.0
+    container_name: broker1
+    networks:
+      - kafka-net
+    depends_on:
+      - controller1
+      - controller2
+      - controller3
+    environment:
+      - KAFKA_CFG_NODE_ID=4
+      - KAFKA_CFG_PROCESS_ROLES=broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER   # ✅ REQUIRED even for brokers
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker1:9094
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@controller1:9093,2@controller2:9093,3@controller3:9093
+    volumes:
+      - ./data/broker1:/bitnami/kafka/data
+    ports:
+      - "9096:9094"
+
+  broker2:
+    image: bitnami/kafka:3.7.0
+    container_name: broker2
+    networks:
+      - kafka-net
+    depends_on:
+      - controller1
+      - controller2
+      - controller3
+    environment:
+      - KAFKA_CFG_NODE_ID=5
+      - KAFKA_CFG_PROCESS_ROLES=broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER   # ✅ REQUIRED even for brokers
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker2:9094
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@controller1:9093,2@controller2:9093,3@controller3:9093
+    volumes:
+      - ./data/broker2:/bitnami/kafka/data
+    ports:
+      - "9097:9094"
+
+  broker3:
+    image: bitnami/kafka:3.7.0
+    container_name: broker3
+    networks:
+      - kafka-net
+    depends_on:
+      - controller1
+      - controller2
+      - controller3
+    environment:
+      - KAFKA_CFG_NODE_ID=6
+      - KAFKA_CFG_PROCESS_ROLES=broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER   # ✅ REQUIRED even for brokers
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker3:9094
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@controller1:9093,2@controller2:9093,3@controller3:9093
+    volumes:
+      - ./data/broker3:/bitnami/kafka/data
+    ports:
+      - "9098:9094"
+
+networks:
+  kafka-net:
+    driver: bridge
+
